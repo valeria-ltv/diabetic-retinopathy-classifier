@@ -5,7 +5,7 @@
 - Downloaded APTOS-2019 via Kaggle API
 - Verified GPU access, sanity-checked data loading
 
-## 15-09-2026 — Step 2: EDA
+## 16-09-2026 — Step 2: EDA
 - Checked data integrity (no duplicates, no missing values)
 - Class distribution: severe imbalance, classes 0/2 dominant
 - Image sizes vary → need padding + resize
