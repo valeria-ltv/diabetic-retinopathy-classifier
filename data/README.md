@@ -39,3 +39,16 @@ data/raw/aptos2019/
 ## Note
 Raw and processed data are excluded from version control (see .gitignore).
 This README documents how to reproduce the data setup locally.
+
+Train/val/test split CSVs (data/processed/aptos2019/splits/) are tracked in git 
+to ensure reproducibility of the exact split across environments
+
+## Processed data structure
+
+```
+data/processed/aptos2019/
+└── splits/
+    ├── train_split.csv    # id_code + diagnosis, ~70% stratified
+    ├── val_split.csv      # ~15% stratified
+    └── test_split.csv     # ~15% stratified
+```
