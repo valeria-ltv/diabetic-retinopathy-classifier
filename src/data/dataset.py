@@ -3,10 +3,10 @@ from collections.abc import Callable
 
 import pandas as pd
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
-from preprocessing import preprocess_pipeline
-from transforms import get_transforms
+from src.data.preprocessing import preprocess_pipeline
+from src.data.transforms import get_transforms
 
 
 class DiabeticRetinopathyDataset(Dataset):
@@ -43,11 +43,44 @@ class DiabeticRetinopathyDataset(Dataset):
         img = self.transform(img)
         return {'image': img, 'label': label}
 
+
+def get_dataloader(dataset: Dataset, split: str = "train",
+                   batch_size : int = 32, num_workers: int = 2) -> DataLoader:
+    """
+    Returns a PyTorch DataLoader for the given dataset.
+
+    Args:
+        dataset (Dataset): The dataset to load.
+        split (str, optional): Dataset split ('train', 'val', or 'test'). Defaults to "train".
+        batch_size (int, optional): Number of samples per batch. Defaults to 32.
+        num_workers (int, optional): Number of subprocesses for data loading. Defaults to 2.
+
+    Returns:
+        DataLoader: PyTorch DataLoader.
+    """
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=(split == "train"),
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available()
+    )
+
+
 if __name__ == "__main__":
     df = pd.read_csv("../../data/processed/aptos2019/splits/train_split.csv")
-    dataset = DiabeticRetinopathyDataset(img_dir="../../data/raw/aptos2019/train_images", annotations_df=df)
-    sample = next(iter(dataset))
-    print(sample["image"].shape)
-    print(sample["image"].dtype)
-    print(sample["label"].dtype)
-    print(sample["label"])
+    train_dataset = DiabeticRetinopathyDataset(
+        img_dir="../../data/raw/aptos2019/train_images",
+        annotations_df=df
+    )
+    train_loader = get_dataloader(train_dataset, split="train", batch_size=8, num_workers=0)
+
+    batch = next(iter(train_loader))
+    images = batch["image"]
+    labels = batch["label"]
+
+    print(f"Batch images shape: {images.shape}")  # [8, 3, 384, 384]
+    print(f"Batch images dtype: {images.dtype}")  # torch.float32
+    print(f"Batch labels shape: {labels.shape}")  # [8]
+    print(f"Batch labels dtype: {labels.dtype}")  # torch.int64
+    print(f"Labels: {labels}")

@@ -27,7 +27,14 @@
 - Implemented DiabeticRetinopathyDataset (src/data/dataset.py): loads image via
   preprocess_pipeline, applies transform, returns {image, label}
 - Sanity-checked: dataset[0] returns correct tensor shape (3, 384, 384) and dtype (float32)
-- TODO (next): implement augmentation transforms for train split (currently identical
-  to val/test — only ToTensor + Normalize)
+- ~~TODO (next): implement augmentation transforms for train split (currently identical
+  to val/test — only ToTensor + Normalize)~~
 
-## Next: Step 4 (part 2) — Augmentation pipeline & DataLoader
+## 05-10-2026 — Step 4 (part 2): Augmentation pipeline & DataLoader
+- Implemented augmentation for train split: horizontal/vertical flip, rotation, color jitter
+- Verified vertical flip validity for fundus images via literature (see 04_augmentation.ipynb)
+- Implemented get_dataloader() with random shuffling for train only
+- Sanity-checked: batch shape [8, 3, 384, 384], correct dtypes, visual grid confirms
+  augmentation variety without introducing new artifacts
+
+## Next: Step 5 — Baseline CNN model
