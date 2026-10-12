@@ -5,7 +5,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-from src.config import IMG_DIR, CSV_PATH
+from src.config import IMG_DIR, SPLITS_DIR
 from src.data.preprocessing import preprocess_pipeline
 from src.data.transforms import get_transforms
 
@@ -69,10 +69,10 @@ def get_dataloader(dataset: Dataset, split: str = "train",
 
 
 if __name__ == "__main__":
-    df = pd.read_csv(CSV_PATH)
+    train_df = pd.read_csv(SPLITS_DIR / "train_split.csv")
     train_dataset = DiabeticRetinopathyDataset(
         img_dir=str(IMG_DIR),
-        annotations_df=df
+        annotations_df=train_df
     )
     train_loader = get_dataloader(train_dataset, split="train", batch_size=8, num_workers=0)
 

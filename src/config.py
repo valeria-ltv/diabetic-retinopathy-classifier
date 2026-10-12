@@ -13,4 +13,4 @@ else:
     # Setup for local
     IMG_DIR = ROOT_DIR / "data" / "raw" / "aptos2019" / "train_images"
 
-CSV_PATH = ROOT_DIR / "data" / "processed" / "aptos2019" / "splits" / "train_split.csv"
+SPLITS_DIR = ROOT_DIR / "data" / "processed" / "aptos2019" / "splits"
