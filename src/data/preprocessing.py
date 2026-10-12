@@ -1,16 +1,17 @@
 import cv2
 import numpy as np
+from pathlib import Path
 
-def load_image(path: str) -> np.ndarray:
+def load_image(path: str | Path) -> np.ndarray:
     """
     Reads an image from disk and converts its color space for proper display.
 
     Args:
-        path (str): Full path to the image file.
+        path (str | Path): Full path to the image file.
     Returns:
         numpy.ndarray: Image array in RGB format.
     """
-    img = cv2.imread(path)
+    img = cv2.imread(str(path))
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 
@@ -118,12 +119,12 @@ def remove_border(img: np.ndarray, target_size: int) -> np.ndarray:
     img[mask == 0] = 128
     return img
 
-def preprocess_pipeline(img_path: str, target_size: int = 384) -> np.ndarray:
+def preprocess_pipeline(img_path: str | Path, target_size: int = 384) -> np.ndarray:
     """
     Preprocesses image.
 
     Args:
-        img_path (str): Path to the image file to preprocess.
+        img_path (str | Path): Path to the image file to preprocess.
         target_size (int, optional): Target size of a square image in pixels. Defaults to 384.
     Returns:
         np.ndarray: Preprocessed image in RGB format.

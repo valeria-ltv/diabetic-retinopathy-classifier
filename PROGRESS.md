@@ -41,5 +41,10 @@
 - No local GPU -> Training setup in Kaggle notebook
 - Added src/config.py: environment-aware paths (local vs Kaggle)
 - Verified execution of `src/data/dataset.py` on Kaggle: batch shape [8, 3, 384, 384], correct dtypes and labels
+- Bottleneck: On-the-fly preprocessing caused data loading delays (~2.3–3.0s/batch, batch_size=32), 
+  leaving the GPU idle. 
+- Added src/data/cache_preprocessed.py (resumable, atomic writes, integrity check against pipeline output)
+- Updated Dataset to read from cache when preprocessed_dir is provided, falling back to on-the-fly 
+  processing for inference.
 
 ## Next: Step 5 — Baseline CNN model
