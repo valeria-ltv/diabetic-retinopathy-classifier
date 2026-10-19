@@ -3,7 +3,7 @@
 ## 15-09-2026 — Step 1: Environment setup
 - Created GitHub repo, folder structure
 - Downloaded APTOS-2019 via Kaggle API
-- Verified GPU access, sanity-checked data loading
+- Sanity-check for data loading
 
 ## 16-09-2026 — Step 2: EDA
 - Checked data integrity (no duplicates, no missing values)
@@ -41,10 +41,12 @@
 - No local GPU -> Training setup in Kaggle notebook
 - Added src/config.py: environment-aware paths (local vs Kaggle)
 - Verified execution of `src/data/dataset.py` on Kaggle: batch shape [8, 3, 384, 384], correct dtypes and labels
-- Bottleneck: On-the-fly preprocessing caused data loading delays (~2.3–3.0s/batch, batch_size=32), 
-  leaving the GPU idle. 
+- Bottleneck: On-the-fly preprocessing caused data loading delays (~2.25s/batch with num_workers=0, 
+  ~0.97s with num_workers=4, batch_size=32), leaving the GPU idle
 - Added src/data/cache_preprocessed.py (resumable, atomic writes, integrity check against pipeline output)
 - Updated Dataset to read from cache when preprocessed_dir is provided, falling back to on-the-fly 
-  processing for inference.
+  processing for inference
+- Cache effectiveness (batch_size=32): Improved from 2.25s to 0.15s/batch for num_workers=0 (~15x speedup), 
+  and from 0.97s to 0.09s/batch for num_workers=4 (~11x speedup)
 
 ## Next: Step 5 — Baseline CNN model

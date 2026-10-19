@@ -27,7 +27,7 @@ class DiabeticRetinopathyDataset(Dataset):
         transform (Callable | None, optional): Transform to apply to the images.
             If None, defaults to `get_transforms(split=split)`. Defaults to None.
         split (str, optional): Dataset split ('train', 'val', or 'test').
-            Defaults to "train".
+            Defaults to 'train'.
     """
     def __init__(self, img_dir: str | Path,
                  annotations_df: pd.DataFrame,
@@ -76,14 +76,14 @@ class DiabeticRetinopathyDataset(Dataset):
         return {'image': img, 'label': label}
 
 
-def get_dataloader(dataset: Dataset, split: str = "train",
-                   batch_size : int = 32, num_workers: int = 2) -> DataLoader:
+def get_dataloader(dataset: DiabeticRetinopathyDataset,
+                   batch_size : int = 32,
+                   num_workers: int = 2) -> DataLoader:
     """
     Returns a PyTorch DataLoader for the given dataset.
 
     Args:
         dataset (Dataset): The dataset to load.
-        split (str, optional): Dataset split ('train', 'val', or 'test'). Defaults to "train".
         batch_size (int, optional): Number of samples per batch. Defaults to 32.
         num_workers (int, optional): Number of subprocesses for data loading. Defaults to 2.
 
@@ -93,7 +93,7 @@ def get_dataloader(dataset: Dataset, split: str = "train",
     return DataLoader(
         dataset,
         batch_size=batch_size,
-        shuffle=(split == "train"),
+        shuffle=(dataset.split == "train"),
         num_workers=num_workers,
         pin_memory=torch.cuda.is_available()
     )
@@ -104,9 +104,10 @@ if __name__ == "__main__":
     train_dataset = DiabeticRetinopathyDataset(
         img_dir=str(IMG_DIR),
         annotations_df=train_df,
+        split="train",
         preprocessed_dir=PROCESSED_DIR / "images_processed"
     )
-    train_loader = get_dataloader(train_dataset, split="train", batch_size=8, num_workers=0)
+    train_loader = get_dataloader(train_dataset, batch_size=8, num_workers=0)
 
     batch = next(iter(train_loader))
     images = batch["image"]
