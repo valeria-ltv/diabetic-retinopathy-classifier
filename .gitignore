@@ -223,3 +223,6 @@ data/processed/**
 !data/processed/aptos2019/
 !data/processed/aptos2019/splits/
 !data/processed/aptos2019/splits/*.csv
+
+*.pt
+*.pth

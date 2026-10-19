@@ -49,4 +49,12 @@
 - Cache effectiveness (batch_size=32): Improved from 2.25s to 0.15s/batch for num_workers=0 (~15x speedup), 
   and from 0.97s to 0.09s/batch for num_workers=4 (~11x speedup)
 
-## Next: Step 5 — Baseline CNN model
+## 19-10-2026 — Step 5 (part 1): Baseline model & first full training
+- Removed duplicated `split` argument from `get_dataloader()`, it is now stored only in the Dataset
+- Added `requirements.txt`; added `*.pt` / `*.pth` to `.gitignore`
+- Chose CrossEntropy Loss + pretrained `efficientnet_lite0` (timm) as baseline for simplicity
+- Sanity check (`05_baseline_sanity_check.ipynb`, CPU, 200 train / 50 val, 3 epochs): train loss decreases, pipeline works end to end
+- Full run on Kaggle GPU (`06_baseline_training.ipynb`): AdamW lr=1e-4, batch size 32, 10 epochs
+- Result: best val QWK 0.8407 (epoch 9); epochs 4-10 stay within 0.79-0.84
+- Best model weights (`best_efficientnet_lite0.pth`) are saved in Kaggle Output
+- TODO (next): confusion matrix on val to see error types
