@@ -14,3 +14,6 @@ else:
     RAW_DIR = ROOT_DIR / "data" / "raw" / "aptos2019"
 
 IMG_DIR = RAW_DIR / "train_images"
+
+# Models directory
+MODELS_DIR = ROOT_DIR / "models"

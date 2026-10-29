@@ -57,12 +57,18 @@
 - Full run on Kaggle GPU (`06_baseline_training.ipynb`): AdamW lr=1e-4, batch size 32, 10 epochs
 - Result: best val QWK 0.8407 (epoch 9); epochs 4-10 stay within 0.79-0.84
 - Best model weights (`best_efficientnet_lite0.pth`) are saved in Kaggle Output
-- - ~~TODO (next): confusion matrix on val to see error types~~ → done in the Colab rerun (27-10-2026)
+- ~~TODO (next): confusion matrix on val to see error types~~ → done in the Colab rerun (27-10-2026)
 
-## 27-10-2026 — Step 5 (part 2): Model selection redone in Colab & final test evaluation
+## 27-10-2026 — Step 5 (part 2): Model selection in Colab & final test evaluation
 - All experiments in Google Colab; earlier Kaggle runs (`efficientnet_lite0`) are superseded, notebooks 05/06 removed (see git history)
 - All runs and plots: `05_modeling_experiments.ipynb`
 - Chose `efficientnet_b0`: top backbones are on the same level (val QWK ~0.85), but b0 is 2-6x faster
 - Regression is weaker alone but complementary → final model: ensemble of CE and regression (val QWK 0.892, optimistic)
 - Test (run once): CE 0.847, ensemble 0.884 → ensemble accepted as the final model
-- TODO (next): test confusion matrix + bootstrap CI and Grad-CAM
+- ~~TODO (next): test confusion matrix + bootstrap CI~~ → done (29-10-2026)
+
+## 29-10-2026 — Step 5 (part 3): Test analysis & Step 6 (part 1): Inference pipeline
+- Test confusion matrices + paired bootstrap (`05_modeling_experiments.ipynb`)
+- Added `src/inference.py`: `InferencePipeline` (CE expected value + regression, w=0.65, thresholds tuned on val)
+- Weights are expected in `models/` (`effnetb0_reg.pth`, `effnetb0_clf.pth`), not in git
+- TODO (next): verify that the pipeline reproduces test QWK 0.884; Grad-CAM; API
