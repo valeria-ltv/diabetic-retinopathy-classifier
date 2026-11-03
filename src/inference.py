@@ -5,7 +5,7 @@ import timm
 import torch
 import torch.nn as nn
 
-from src.config import SPLITS_DIR, IMG_DIR, MODELS_DIR
+from src.config import MODELS_DIR
 from src.data.preprocessing import preprocess_pipeline
 from src.data.transforms import get_transforms
 
