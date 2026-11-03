@@ -11,6 +11,7 @@ from src.data.transforms import get_transforms
 
 REG_MODEL_PATH = MODELS_DIR / "effnetb0_reg.pth"
 CLF_MODEL_PATH = MODELS_DIR / "effnetb0_clf.pth"
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class ModelWrapper(nn.Module):
     """
