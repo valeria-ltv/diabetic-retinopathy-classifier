@@ -57,7 +57,7 @@
 - Full run on Kaggle GPU (`06_baseline_training.ipynb`): AdamW lr=1e-4, batch size 32, 10 epochs
 - Result: best val QWK 0.8407 (epoch 9); epochs 4-10 stay within 0.79-0.84
 - Best model weights (`best_efficientnet_lite0.pth`) are saved in Kaggle Output
-- ~~TODO (next): confusion matrix on val to see error types~~ → done in the Colab rerun (27-10-2026)
+- ~~TODO (next): confusion matrix on val to see error types~~ → done (27-10-2026)
 
 ## 27-10-2026 — Step 5 (part 2): Model selection in Colab & final test evaluation
 - All experiments in Google Colab; earlier Kaggle runs (`efficientnet_lite0`) are superseded, notebooks 05/06 removed (see git history)
@@ -71,4 +71,10 @@
 - Test confusion matrices + paired bootstrap (`05_modeling_experiments.ipynb`)
 - Added `src/inference.py`: `InferencePipeline` (CE expected value + regression, w=0.65, thresholds tuned on val)
 - Weights are expected in `models/` (`effnetb0_reg.pth`, `effnetb0_clf.pth`), not in git
-- TODO (next): verify that the pipeline reproduces test QWK 0.884; Grad-CAM; API
+- ~~TODO (next): verify that the pipeline reproduces test QWK 0.884; Grad-CAM~~ → done (04-11-2026)
+
+## 04-11-2026 — Step 6 (part 2): Check of the inference pipeline & Grad-CAM
+- Added `src/evaluate.py`: runs `InferencePipeline` on every test image and reproduces test QWK 0.884
+- Removed the demo block from `src/inference.py`
+- Added `06_gradcam_visualization.ipynb`: Grad-CAM for classifier and regressor, one test image per class
+- TODO (next): API

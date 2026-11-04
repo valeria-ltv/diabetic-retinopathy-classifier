@@ -54,7 +54,7 @@ class InferencePipeline:
 
         # Load models
         self.model_reg = self._load_model(num_outputs=1, path=reg_model_path)
-        self.model_class = self._load_model(num_outputs=5, path=clf_model_path)
+        self.model_clf = self._load_model(num_outputs=5, path=clf_model_path)
 
     def _load_model(self, num_outputs: int, path: str | Path) -> nn.Module:
         """
@@ -108,7 +108,7 @@ class InferencePipeline:
         reg_pred = self.model_reg(tensor).item()
 
         # Classification model inference (with softmax for probabilities)
-        clf_logits = self.model_class(tensor)
+        clf_logits = self.model_clf(tensor)
         probs = torch.softmax(clf_logits, dim=1).cpu().numpy()[0]
 
         # Calculate expected value (soft score) from classification probabilities
