@@ -78,3 +78,6 @@
 - Removed the demo block from `src/inference.py`
 - Added `06_gradcam_visualization.ipynb`: Grad-CAM for classifier and regressor, one test image per class
 - TODO (next): API
+
+## 08-11-2026 — Step 6 (part 3): Grad-CAM module
+- Added src/explain.py: Grad-CAM for classifier and regressor
