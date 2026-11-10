@@ -81,3 +81,6 @@
 ## 08-11-2026 — Step 6 (part 3): Grad-CAM module
 - Added `src/explain.py`: Grad-CAM for classifier and regressor
 - TODO (next): API
+
+## 10-11-2026 — Step 7: API
+- Added `src/api.py`: Implement FastAPI service and /predict endpoint
