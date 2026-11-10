@@ -77,7 +77,7 @@
 - Added `src/evaluate.py`: runs `InferencePipeline` on every test image and reproduces test QWK 0.884
 - Removed the demo block from `src/inference.py`
 - Added `06_gradcam_visualization.ipynb`: Grad-CAM for classifier and regressor, one test image per class
-- TODO (next): API
 
 ## 08-11-2026 — Step 6 (part 3): Grad-CAM module
-- Added src/explain.py: Grad-CAM for classifier and regressor
+- Added `src/explain.py`: Grad-CAM for classifier and regressor
+- TODO (next): API
