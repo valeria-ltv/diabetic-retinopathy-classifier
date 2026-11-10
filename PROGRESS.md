@@ -10,7 +10,7 @@
 - Class distribution: severe imbalance, classes 0/2 dominant
 - Image sizes vary → need padding + resize
 - Two visually distinct image types (color balance) → possible camera/source difference
-- ~~TODO (next step): verify whether image type correlates with diagnosis class before preprocessing~~ → done (21-09-2026)
+- ~~TODO (next): verify whether image type correlates with diagnosis class before preprocessing~~ → done (21-09-2026)
 
 ## 21-09-2026 — Color bias check (closed TODO)
 - Verified "cool" vs "warm" image correlation with diagnosis using HSV saturation
@@ -80,8 +80,8 @@
 
 ## 08-11-2026 — Step 6 (part 3): Grad-CAM module
 - Added `src/explain.py`: Grad-CAM for classifier and regressor
-- TODO (next): API
 
 ## 10-11-2026 — Step 7: API
 - Added `src/api.py`: Implement FastAPI service and /predict endpoint
 - Refactored monolithic `src/api.py` into a modular `src/api/` package (`main.py`, `routes.py`, `schemas.py`)
+- TODO (next): Grad-CAM explanation endpoints
