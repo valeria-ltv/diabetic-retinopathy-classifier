@@ -84,3 +84,4 @@
 
 ## 10-11-2026 — Step 7: API
 - Added `src/api.py`: Implement FastAPI service and /predict endpoint
+- Refactored monolithic `src/api.py` into a modular `src/api/` package (`main.py`, `routes.py`, `schemas.py`)
