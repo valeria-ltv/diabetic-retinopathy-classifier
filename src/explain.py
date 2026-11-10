@@ -66,38 +66,3 @@ def generate_explanations(img_path: str | Path,
         "cam_clf": vis_clf,
         "cam_reg": vis_reg,
     }
-
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    import pandas as pd
-
-    from src.config import IMG_DIR, SPLITS_DIR
-    from src.inference import CLF_MODEL_PATH, DEVICE, REG_MODEL_PATH, InferencePipeline
-
-    pipeline = InferencePipeline(reg_model_path=REG_MODEL_PATH,
-                                 clf_model_path=CLF_MODEL_PATH,
-                                 device=DEVICE)
-
-    test_df = pd.read_csv(SPLITS_DIR / "test_split.csv")
-    sample_row = test_df.iloc[0]
-    img_id = sample_row.id_code
-    img_path = IMG_DIR / f"{img_id}.png"
-
-    explanations = generate_explanations(img_path, pipeline)
-
-    fig, axes = plt.subplots(1, 3, figsize=(16, 4))
-    axes[0].imshow(explanations["preprocessed"])
-    axes[0].set_title("Preprocessed")
-
-    axes[1].imshow(explanations["cam_clf"])
-    axes[1].set_title("Classifier CAM")
-
-    axes[2].imshow(explanations["cam_reg"])
-    axes[2].set_title("Regressor CAM")
-
-    for ax in axes:
-        ax.axis("off")
-
-    plt.tight_layout()
-    plt.show()
