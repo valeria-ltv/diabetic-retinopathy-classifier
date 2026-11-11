@@ -1,11 +1,11 @@
 # Progress Log
 
-## 15-09-2026 — Step 1: Environment setup
+## 15-09-2026 — Environment setup
 - Created GitHub repo, folder structure
 - Downloaded APTOS-2019 via Kaggle API
 - Sanity-check for data loading
 
-## 16-09-2026 — Step 2: EDA
+## 16-09-2026 — EDA
 - Checked data integrity (no duplicates, no missing values)
 - Class distribution: severe imbalance, classes 0/2 dominant
 - Image sizes vary → need padding + resize
@@ -17,11 +17,11 @@
 - Confirmed: class 0 has the highest proportion of cool images — risk of shortcut learning
 - Requirement for preprocessing: aggressive color normalization
 
-## 24-09-2026 — Step 3: Preprocessing pipeline
+## 24-09-2026 — Preprocessing pipeline
 - Implemented: crop black borders → stretch resize → Ben Graham color processing → circular boundary mask
 - Chose stretch over aspect-ratio-preserving resize for clean boundary masking
 
-## 29-09-2026 — Step 4 (part 1): Dataset & stratified split
+## 29-09-2026 — Dataset & stratified split
 - Implemented stratified 70/15/15 train/val/test split (03_dataset_split.ipynb)
 - Saved split CSVs to `data/processed/aptos2019/splits/` for reproducibility
 - Implemented DiabeticRetinopathyDataset (`src/data/dataset.py`): loads image via
@@ -30,14 +30,14 @@
 - ~~TODO (next): implement augmentation transforms for train split (currently identical
   to val/test — only ToTensor + Normalize)~~ → done (05-10-2026)
 
-## 05-10-2026 — Step 4 (part 2): Augmentation pipeline & DataLoader
+## 05-10-2026 — Augmentation pipeline & DataLoader
 - Implemented augmentation for train split: horizontal/vertical flip, rotation, color jitter
 - Verified vertical flip validity for fundus images via literature (see `04_augmentation.ipynb`)
 - Implemented get_dataloader() with random shuffling for train only
 - Sanity-checked: batch shape [8, 3, 384, 384], correct dtypes, visual grid confirms
   augmentation variety without introducing new artifacts
 
-## 12-10-2026 — Step 5 (setup): Kaggle environment & config
+## 12-10-2026 — Kaggle environment & config
 - No local GPU -> Training setup in Kaggle notebook
 - Added src/config.py: environment-aware paths (local vs Kaggle)
 - Verified execution of `src/data/dataset.py` on Kaggle: batch shape [8, 3, 384, 384], correct dtypes and labels
@@ -49,7 +49,7 @@
 - Cache effectiveness (batch_size=32): Improved from 2.25s to 0.15s/batch for num_workers=0 (~15x speedup), 
   and from 0.97s to 0.09s/batch for num_workers=4 (~11x speedup)
 
-## 19-10-2026 — Step 5 (part 1): Baseline model & first full training
+## 19-10-2026 — Baseline model & first full training
 - Removed duplicated `split` argument from `get_dataloader()`, it is now stored only in the Dataset
 - Added `requirements.txt`; added `*.pt` / `*.pth` to `.gitignore`
 - Chose CrossEntropy Loss + pretrained `efficientnet_lite0` (timm) as baseline for simplicity
@@ -59,7 +59,7 @@
 - Best model weights (`best_efficientnet_lite0.pth`) are saved in Kaggle Output
 - ~~TODO (next): confusion matrix on val to see error types~~ → done (27-10-2026)
 
-## 27-10-2026 — Step 5 (part 2): Model selection in Colab & final test evaluation
+## 27-10-2026 — Model selection in Colab & final test evaluation
 - All experiments in Google Colab; earlier Kaggle runs (`efficientnet_lite0`) are superseded, notebooks 05/06 removed (see git history)
 - All runs and plots: `05_modeling_experiments.ipynb`
 - Chose `efficientnet_b0`: top backbones are on the same level (val QWK ~0.85), but b0 is 2-6x faster
@@ -67,21 +67,27 @@
 - Test (run once): CE 0.847, ensemble 0.884 → ensemble accepted as the final model
 - ~~TODO (next): test confusion matrix + bootstrap CI~~ → done (29-10-2026)
 
-## 29-10-2026 — Step 5 (part 3): Test analysis & Step 6 (part 1): Inference pipeline
+## 29-10-2026 — Test analysis & Inference pipeline
 - Test confusion matrices + paired bootstrap (`05_modeling_experiments.ipynb`)
 - Added `src/inference.py`: `InferencePipeline` (CE expected value + regression, w=0.65, thresholds tuned on val)
 - Weights are expected in `models/` (`effnetb0_reg.pth`, `effnetb0_clf.pth`), not in git
 - ~~TODO (next): verify that the pipeline reproduces test QWK 0.884; Grad-CAM~~ → done (04-11-2026)
 
-## 04-11-2026 — Step 6 (part 2): Check of the inference pipeline & Grad-CAM
+## 04-11-2026 — Check of the inference pipeline & Grad-CAM
 - Added `src/evaluate.py`: runs `InferencePipeline` on every test image and reproduces test QWK 0.884
 - Removed the demo block from `src/inference.py`
 - Added `06_gradcam_visualization.ipynb`: Grad-CAM for classifier and regressor, one test image per class
 
-## 08-11-2026 — Step 6 (part 3): Grad-CAM module
+## 08-11-2026 — Grad-CAM module
 - Added `src/explain.py`: Grad-CAM for classifier and regressor
 
-## 10-11-2026 — Step 7: API
-- Added `src/api.py`: Implement FastAPI service and /predict endpoint
+## 10-11-2026 — API
+- Added `src/api.py`: FastAPI service and `/predict` endpoint
 - Refactored monolithic `src/api.py` into a modular `src/api/` package (`main.py`, `routes.py`, `schemas.py`)
+
+## 11-11-2026 — API
+- Refactored API architecture (`main.py`, `routes.py`) to use lifespan and app.state to fix circular import
+- Fixed event loop blocking during inference in `/predict` endpoint with asyncio.to_thread (`routes.py`)
+- `/predict` input validation: 10 MB size limit, image verification, unexpected errors are logged on the server and returned as a 500 error without internal details
+- Added `/health` endpoint
 - TODO (next): Grad-CAM explanation endpoints
