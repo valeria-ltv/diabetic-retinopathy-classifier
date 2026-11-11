@@ -23,10 +23,10 @@ def get_pipeline(request: Request) -> InferencePipeline:
     Dependency to retrieve the preloaded InferencePipeline from app.state
 
     Args:
-        request (fastapi.Request): The FastAPI request object.
+        request (Request): The FastAPI request object.
 
     Returns:
-        src.inference.InferencePipeline: The inference pipeline
+        InferencePipeline: The inference pipeline
             instance stored in the application state.
     """
     return request.app.state.pipeline
@@ -41,11 +41,12 @@ def root() -> dict:
 async def predict_image(file: UploadFile = File(...),
                         pipeline: InferencePipeline = Depends(get_pipeline)) -> dict:
     """
-    An endpoint for obtaining predictions for an uploaded retinal image.
+    Validates the uploaded image, runs inference using the pipeline,
+    and returns a prediction for diabetic retinopathy.
 
     Args:
         file (UploadFile): The uploaded image file.
-        pipeline (src.inference.InferencePipeline): The inference pipeline dependency.
+        pipeline (InferencePipeline): The inference pipeline dependency.
 
     Returns:
         dict: A dictionary containing the filename and prediction result.
@@ -54,8 +55,8 @@ async def predict_image(file: UploadFile = File(...),
         HTTPException: If the file is too large, invalid, or an internal error occurs.
     """
     try:
-        # Read bytes of the downloaded file and check size
-        contents = await file.read()
+        # Read up to MAX_FILE_SIZE + 1 bytes and check size
+        contents = await file.read(MAX_FILE_SIZE + 1)
         if len(contents) > MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=413,
@@ -66,7 +67,7 @@ async def predict_image(file: UploadFile = File(...),
         try:
             image = Image.open(io.BytesIO(contents))
             image.verify()
-        except (UnidentifiedImageError, Exception) as e:
+        except (UnidentifiedImageError, OSError) as e:
             raise HTTPException(
                 status_code=400,
                 detail="Invalid image file. The file is corrupted or not a supported image format."
