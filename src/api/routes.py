@@ -37,6 +37,33 @@ def root() -> dict:
     return {"message": "Welcome to the Diabetic Retinopathy API. Use /docs to see interactive documentation."}
 
 
+@router.get("/health")
+def health_check(request: Request) -> dict:
+    """
+    Checks the health status of the API and if the model pipeline is loaded.
+
+    Args:
+        request (Request): The FastAPI request object.
+
+    Returns:
+        dict: A dictionary with API health status and model loading state.
+
+    Raises:
+        HTTPException: If the model pipeline is not loaded.
+    """
+    # Check whether pipeline is initialized in the app
+    if not hasattr(request.app.state, "pipeline") or request.app.state.pipeline is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Model pipeline is not loaded yet."
+        )
+
+    return {
+        "status": "healthy",
+        "model_loaded": True
+    }
+
+
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_image(file: UploadFile = File(...),
                         pipeline: InferencePipeline = Depends(get_pipeline)) -> dict:
