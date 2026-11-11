@@ -1,3 +1,4 @@
+import asyncio
 import tempfile
 from pathlib import Path
 
@@ -38,8 +39,11 @@ async def predict_image(file: UploadFile = File(...),
             temp_path = Path(temp_file.name)
 
         try:
-            # Inference
-            prediction_result = pipeline.predict_single(temp_path)
+            # Inference with asyncio.to_thread
+            # Separate thread to avoid blocking main event loop
+            prediction_result = await asyncio.to_thread(
+                pipeline.predict_single, temp_path
+            )
 
         finally:
             # Delete temporary file
