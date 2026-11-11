@@ -1,12 +1,16 @@
 import tempfile
 from pathlib import Path
 
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, Request, Depends
 
-from src.api.main import pipeline
 from src.api.schemas import PredictionResponse
+from src.inference import InferencePipeline
 
 router = APIRouter()
+
+
+def get_pipeline(request: Request) -> InferencePipeline:
+    return request.app.state.pipeline
 
 
 @router.get("/")
@@ -15,7 +19,8 @@ def root():
 
 
 @router.post("/predict", response_model=PredictionResponse)
-async def predict_image(file: UploadFile = File(...)):
+async def predict_image(file: UploadFile = File(...),
+                        pipeline: InferencePipeline = Depends(get_pipeline)):
     """
     An endpoint for obtaining predictions for an uploaded retinal image.
     """
