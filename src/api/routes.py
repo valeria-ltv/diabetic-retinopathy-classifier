@@ -4,7 +4,7 @@ import logging
 import tempfile
 from pathlib import Path
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 from fastapi import APIRouter, File, UploadFile, HTTPException, Request, Depends
 
 from src.api.schemas import PredictionResponse
@@ -94,7 +94,7 @@ async def predict_image(file: UploadFile = File(...),
         try:
             image = Image.open(io.BytesIO(contents))
             image.verify()
-        except (UnidentifiedImageError, OSError) as e:
+        except Exception as e:
             raise HTTPException(
                 status_code=400,
                 detail="Invalid image file. The file is corrupted or not a supported image format."
@@ -122,8 +122,8 @@ async def predict_image(file: UploadFile = File(...),
             "prediction": prediction_result,
         }
 
-    except HTTPException as he:
-        raise he
+    except HTTPException:
+        raise
 
     except Exception as e:
         # Log all unexpected errors on the server, while
