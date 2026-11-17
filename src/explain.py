@@ -29,6 +29,7 @@ def generate_explanations(img_path: str | Path,
             - "preprocessed" (np.ndarray): Preprocessed input image normalized to float [0, 1].
             - "cam_clf" (np.ndarray): Grad-CAM heatmap overlay for the classifier's predicted class.
             - "cam_reg" (np.ndarray): Grad-CAM heatmap overlay for the regressor model.
+            - "prediction" (dict): Prediction results.
     """
     result = inference_pipeline.predict_single(img_path)
     clf_probs = torch.tensor(result["classification_probs"])
@@ -65,4 +66,5 @@ def generate_explanations(img_path: str | Path,
         "preprocessed": img_float,
         "cam_clf": vis_clf,
         "cam_reg": vis_reg,
+        "prediction": result
     }

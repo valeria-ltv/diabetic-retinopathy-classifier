@@ -12,3 +12,11 @@ class PredictionDetails(BaseModel):
 class PredictionResponse(BaseModel):
     filename: str = Field(..., description="Name of the uploaded image file.")
     prediction: PredictionDetails
+
+
+class ExplainedPredictionResponse(BaseModel):
+    filename: str = Field(..., description="Name of the uploaded image file.")
+    prediction: PredictionDetails
+    preprocessed: str = Field(..., description="Base64-encoded PNG of the preprocessed input image.")
+    classifier_cam: str = Field(..., description="Base64-encoded PNG of the Grad-CAM map for the classifier model (predicted class).")
+    regressor_cam: str = Field(..., description="Base64-encoded PNG of the Grad-CAM map for the regressor model (severity score).")

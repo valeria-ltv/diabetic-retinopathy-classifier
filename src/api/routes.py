@@ -10,12 +10,12 @@ import numpy as np
 from PIL import Image
 from fastapi import APIRouter, File, UploadFile, HTTPException, Request, Depends
 
-from src.api.schemas import PredictionResponse
+from src.api.schemas import PredictionResponse, ExplainedPredictionResponse
+from src.explain import generate_explanations
 from src.inference import InferencePipeline
 
 router = APIRouter()
 
-# Configure logging to record errors on the server
 logger = logging.getLogger(__name__)
 
 # Maximum file size allowed for upload: 10 MB
@@ -35,29 +35,24 @@ def get_pipeline(request: Request) -> InferencePipeline:
     return request.app.state.pipeline
 
 
-def encode_array(arr: np.ndarray, to_uint8: bool = False) -> dict:
+def encode_array_to_png(arr: np.ndarray) -> str:
     """
-    Encodes a NumPy array into a base64 string.
+    Encodes a NumPy array as a PNG image in a base64 string.
 
     Args:
-        arr (np.ndarray): The array to encode.
-        to_uint8 (bool): Whether to convert floating arrays to uint8.
+        arr (np.ndarray): The image array (float [0, 1] or uint8 [0, 255]).
 
     Returns:
-        dict: A dictionary containing:
-            - "data" (str): The base64-encoded array data.
-            - "dtype" (str): The data type of the array.
-            - "shape" (list): The shape of the array.
+        str: Base64-encoded PNG image string.
     """
-    if to_uint8 and np.issubdtype(arr.dtype, np.floating):
+    # If array is float [0.0, 1.0], convert to uint8 [0, 255]
+    if np.issubdtype(arr.dtype, np.floating):
         arr = np.clip(arr * 255.0, 0, 255).round().astype(np.uint8)
 
-    contiguous_arr = np.ascontiguousarray(arr)
-    return {
-        "data": base64.b64encode(contiguous_arr).decode("utf-8"),
-        "dtype": str(contiguous_arr.dtype),
-        "shape": list(contiguous_arr.shape)
-    }
+    img = Image.fromarray(arr)
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
 
 @router.get("/")
@@ -174,8 +169,56 @@ async def predict_image(file: UploadFile = File(...),
     except Exception as e:
         # Log all unexpected errors on the server, while
         # returning 500 error to the client without details
-        logger.exception("An unexpected error occurred during prediction processing.")
+        logger.exception("An unexpected error occurred.")
         raise HTTPException(
             status_code=500,
-            detail="An internal server error occurred while processing the image."
+            detail="An internal server error occurred."
+        ) from e
+
+
+@router.post("/explain", response_model=ExplainedPredictionResponse)
+async def explain(file: UploadFile = File(...),
+                  pipeline: InferencePipeline = Depends(get_pipeline)) -> dict:
+    """
+    Returns a prediction and visual explanations for diabetic retinopathy.
+
+    Args:
+        file (UploadFile): The uploaded image file.
+        pipeline (InferencePipeline): The inference pipeline dependency.
+
+    Returns:
+        dict: A dictionary containing:
+            - "filename" (str): The name of the uploaded file.
+            - "prediction" (dict): The prediction for the uploaded file.
+            - "preprocessed" (dict): The preprocessed image data.
+            - "classifier_cam" (dict): The classifier CAM data.
+            - "regressor_cam" (dict): The regressor CAM data.
+
+    Raises:
+        HTTPException: If the file is too large, invalid, or an internal error occurs.
+    """
+    try:
+        async with validate_and_save_upload(file) as temp_path:
+            # Separate thread to avoid blocking main event loop
+            explanations = await asyncio.to_thread(
+                generate_explanations, temp_path, pipeline
+            )
+
+        return {
+            "filename": file.filename,
+            "prediction": explanations["prediction"],
+            "preprocessed": encode_array_to_png(explanations["preprocessed"]),
+            "classifier_cam": encode_array_to_png(explanations["cam_clf"]),
+            "regressor_cam": encode_array_to_png(explanations["cam_reg"])
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Log all unexpected errors on the server, while
+        # returning 500 error to the client without details
+        logger.exception("An unexpected error occurred.")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal server error occurred."
         ) from e
