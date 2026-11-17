@@ -4,6 +4,7 @@ import contextlib
 import io
 import tempfile
 from pathlib import Path
+from collections.abc import AsyncGenerator
 
 import numpy as np
 from PIL import Image
@@ -85,7 +86,7 @@ def health_check(request: Request) -> dict:
 
 
 @contextlib.asynccontextmanager
-async def validate_and_save_upload(file: UploadFile) -> Path:
+async def validate_and_save_upload(file: UploadFile) -> AsyncGenerator[Path]:
     """
     Validates the uploaded file, checks if it is a valid image,
     and saves it temporarily for processing.
@@ -172,9 +173,9 @@ async def explain(file: UploadFile = File(...),
         dict: A dictionary containing:
             - "filename" (str): The name of the uploaded file.
             - "prediction" (dict): The prediction for the uploaded file.
-            - "preprocessed" (dict): The preprocessed image data.
-            - "classifier_cam" (dict): The classifier CAM data.
-            - "regressor_cam" (dict): The regressor CAM data.
+            - "preprocessed" (str): Base64-encoded PNG of the preprocessed input image.
+            - "classifier_cam" (str): Base64-encoded PNG of the Grad-CAM map for the classifier model (predicted class).
+            - "regressor_cam" (str): Base64-encoded PNG of the Grad-CAM map for the regressor model (severity score).
     """
     async with validate_and_save_upload(file) as temp_path:
         # Separate thread to avoid blocking main event loop
