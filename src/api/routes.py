@@ -2,7 +2,6 @@ import asyncio
 import base64
 import contextlib
 import io
-import logging
 import tempfile
 from pathlib import Path
 
@@ -15,8 +14,6 @@ from src.explain import generate_explanations
 from src.inference import InferencePipeline
 
 router = APIRouter()
-
-logger = logging.getLogger(__name__)
 
 # Maximum file size allowed for upload: 10 MB
 MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -148,32 +145,17 @@ async def predict_image(file: UploadFile = File(...),
         dict: A dictionary containing:
             - "filename" (str): The name of the uploaded file.
             - "prediction" (dict): The prediction for the uploaded file.
-
-    Raises:
-        HTTPException: If the file is too large, invalid, or an internal error occurs.
     """
-    try:
-        async with validate_and_save_upload(file) as temp_path:
-            # Separate thread to avoid blocking main event loop
-            prediction_result = await asyncio.to_thread(
-                pipeline.predict_single, temp_path
-            )
+    async with validate_and_save_upload(file) as temp_path:
+        # Separate thread to avoid blocking main event loop
+        prediction_result = await asyncio.to_thread(
+            pipeline.predict_single, temp_path
+        )
 
-        return {
-            "filename": file.filename,
-            "prediction": prediction_result,
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Log all unexpected errors on the server, while
-        # returning 500 error to the client without details
-        logger.exception("An unexpected error occurred.")
-        raise HTTPException(
-            status_code=500,
-            detail="An internal server error occurred."
-        ) from e
+    return {
+        "filename": file.filename,
+        "prediction": prediction_result,
+    }
 
 
 @router.post("/explain", response_model=ExplainedPredictionResponse)
@@ -193,32 +175,17 @@ async def explain(file: UploadFile = File(...),
             - "preprocessed" (dict): The preprocessed image data.
             - "classifier_cam" (dict): The classifier CAM data.
             - "regressor_cam" (dict): The regressor CAM data.
-
-    Raises:
-        HTTPException: If the file is too large, invalid, or an internal error occurs.
     """
-    try:
-        async with validate_and_save_upload(file) as temp_path:
-            # Separate thread to avoid blocking main event loop
-            explanations = await asyncio.to_thread(
-                generate_explanations, temp_path, pipeline
-            )
+    async with validate_and_save_upload(file) as temp_path:
+        # Separate thread to avoid blocking main event loop
+        explanations = await asyncio.to_thread(
+            generate_explanations, temp_path, pipeline
+        )
 
-        return {
-            "filename": file.filename,
-            "prediction": explanations["prediction"],
-            "preprocessed": encode_array_to_png(explanations["preprocessed"]),
-            "classifier_cam": encode_array_to_png(explanations["cam_clf"]),
-            "regressor_cam": encode_array_to_png(explanations["cam_reg"])
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Log all unexpected errors on the server, while
-        # returning 500 error to the client without details
-        logger.exception("An unexpected error occurred.")
-        raise HTTPException(
-            status_code=500,
-            detail="An internal server error occurred."
-        ) from e
+    return {
+        "filename": file.filename,
+        "prediction": explanations["prediction"],
+        "preprocessed": encode_array_to_png(explanations["preprocessed"]),
+        "classifier_cam": encode_array_to_png(explanations["cam_clf"]),
+        "regressor_cam": encode_array_to_png(explanations["cam_reg"])
+    }

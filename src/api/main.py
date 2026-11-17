@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from src.inference import InferencePipeline, REG_MODEL_PATH, CLF_MODEL_PATH, DEVICE
 from src.api.routes import router
@@ -35,5 +36,17 @@ app = FastAPI(
     description="API for inference and Grad-CAM explanations of hybrid DR models.",
     version="1.0"
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """
+    Catches all unhandled exceptions across the application, logs the full traceback,
+    and returns a generic 500 Internal Server Error without leaking implementation details.
+    """
+    logger.exception(f"Unhandled error occurred while processing {request.method} {request.url.path}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal server error occurred while processing the request."}
+    )
 
 app.include_router(router)
