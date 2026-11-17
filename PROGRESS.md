@@ -90,4 +90,11 @@
 - Fixed event loop blocking during inference in `/predict` endpoint with asyncio.to_thread (`routes.py`)
 - `/predict` input validation: 10 MB size limit, image verification, unexpected errors are logged on the server and returned as a 500 error without internal details
 - Added `/health` endpoint
-- TODO (next): Grad-CAM explanation endpoints
+- ~~TODO (next): Grad-CAM explanation endpoints~~ → done (17-11-2026)
+
+## 17-11-2026 — API
+- Refactored image validation into a shared async context manager (`validate_and_save_upload`)
+- Implemented `encode_array` utility to serialize NumPy arrays (CAMs) into base64 format
+- Added `/explain`: prediction + preprocessed image and two Grad-CAM maps in one response
+- Centralized global exception handling in `src/main.py` (`global_exception_handler`)
+- TODO (next): lock around model access (Grad-CAM hooks)
