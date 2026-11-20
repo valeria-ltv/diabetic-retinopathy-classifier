@@ -3,8 +3,8 @@ import base64
 import contextlib
 import io
 import tempfile
+from collections.abc import AsyncIterator
 from pathlib import Path
-from collections.abc import AsyncGenerator
 
 import numpy as np
 from PIL import Image
@@ -86,7 +86,7 @@ def health_check(request: Request) -> dict:
 
 
 @contextlib.asynccontextmanager
-async def validate_and_save_upload(file: UploadFile) -> AsyncGenerator[Path]:
+async def validate_and_save_upload(file: UploadFile) -> AsyncIterator[Path]:
     """
     Validates the uploaded file, checks if it is a valid image,
     and saves it temporarily for processing.
@@ -133,14 +133,14 @@ async def validate_and_save_upload(file: UploadFile) -> AsyncGenerator[Path]:
 
 
 @router.post("/predict", response_model=PredictionResponse)
-async def predict_image(file: UploadFile = File(...),
+async def predict_image(request: Request,
+                        file: UploadFile = File(...),
                         pipeline: InferencePipeline = Depends(get_pipeline)) -> dict:
     """
     Returns a prediction for diabetic retinopathy.
 
     Args:
         file (UploadFile): The uploaded image file.
-        pipeline (InferencePipeline): The inference pipeline dependency.
 
     Returns:
         dict: A dictionary containing:
@@ -148,10 +148,11 @@ async def predict_image(file: UploadFile = File(...),
             - "prediction" (dict): The prediction for the uploaded file.
     """
     async with validate_and_save_upload(file) as temp_path:
-        # Separate thread to avoid blocking main event loop
-        prediction_result = await asyncio.to_thread(
-            pipeline.predict_single, temp_path
-        )
+        async with request.app.state.model_lock:
+            # Separate thread to avoid blocking main event loop
+            prediction_result = await asyncio.to_thread(
+                pipeline.predict_single, temp_path
+            )
 
     return {
         "filename": file.filename,
@@ -160,14 +161,14 @@ async def predict_image(file: UploadFile = File(...),
 
 
 @router.post("/explain", response_model=ExplainedPredictionResponse)
-async def explain(file: UploadFile = File(...),
+async def explain(request: Request,
+                  file: UploadFile = File(...),
                   pipeline: InferencePipeline = Depends(get_pipeline)) -> dict:
     """
     Returns a prediction and visual explanations for diabetic retinopathy.
 
     Args:
         file (UploadFile): The uploaded image file.
-        pipeline (InferencePipeline): The inference pipeline dependency.
 
     Returns:
         dict: A dictionary containing:
@@ -178,10 +179,11 @@ async def explain(file: UploadFile = File(...),
             - "regressor_cam" (str): Base64-encoded PNG of the Grad-CAM map for the regressor model (severity score).
     """
     async with validate_and_save_upload(file) as temp_path:
-        # Separate thread to avoid blocking main event loop
-        explanations = await asyncio.to_thread(
-            generate_explanations, temp_path, pipeline
-        )
+        async with request.app.state.model_lock:
+            # Separate thread to avoid blocking main event loop
+            explanations = await asyncio.to_thread(
+                generate_explanations, temp_path, pipeline
+            )
 
     return {
         "filename": file.filename,
