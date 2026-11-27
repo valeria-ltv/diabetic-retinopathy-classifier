@@ -63,8 +63,12 @@ class InferencePipeline:
         Args:
             num_outputs (int): Number of outputs of the model.
             path (str | Path): Path to model weights.
+
         Returns:
             nn.Module
+
+        Raises:
+            FileNotFoundError: If model weights file does not exist.
         """
         weights_path = Path(path)
         if not weights_path.is_file():
@@ -84,6 +88,7 @@ class InferencePipeline:
         Args:
             scores (np.ndarray): Scores to apply thresholds to.
             thresholds (list[float]): Thresholds to apply to scores.
+
         Returns:
             np.ndarray
         """

@@ -12,7 +12,7 @@
 - Two visually distinct image types (color balance) → possible camera/source difference
 - ~~TODO (next): verify whether image type correlates with diagnosis class before preprocessing~~ → done (21-09-2026)
 
-## 21-09-2026 — Color bias check (closed TODO)
+## 21-09-2026 — Color bias check
 - Verified "cool" vs "warm" image correlation with diagnosis using HSV saturation
 - Confirmed: class 0 has the highest proportion of cool images — risk of shortcut learning
 - Requirement for preprocessing: aggressive color normalization
@@ -22,7 +22,7 @@
 - Chose stretch over aspect-ratio-preserving resize for clean boundary masking
 
 ## 29-09-2026 — Dataset & stratified split
-- Implemented stratified 70/15/15 train/val/test split (03_dataset_split.ipynb)
+- Implemented stratified 70/15/15 train/val/test split (`03_dataset_split.ipynb`)
 - Saved split CSVs to `data/processed/aptos2019/splits/` for reproducibility
 - Implemented DiabeticRetinopathyDataset (`src/data/dataset.py`): loads image via
   preprocess_pipeline, applies transform, returns {image, label}
@@ -103,3 +103,9 @@
 - `/predict` and `/explain` share an `asyncio.Lock` (Grad-CAM hooks on shared models are unsafe under concurrent requests)
 - Added API tests (`tests/test_api.py`): health, validation (400/413/500), lock invariant, lock released after errors
 - TODO (next): Docker, README
+
+## 27-11-2026 — Docker & Deployment
+- Hosted model weights (`effnetb0_clf.pth`, `effnetb0_reg.pth`) on Hugging Face
+- Containerized FastAPI service (`Dockerfile`, `compose.yaml`, `.dockerignore`) with external `./models` volume mount
+- Published `:latest` and `:with-weights` images to Docker Hub
+- Completed `README.md` with project overview and deployment instructions

@@ -70,7 +70,7 @@ Run the self-contained image (`:with-weights`) without cloning the repository or
 ### Option 2: Docker Compose (external weights)
 
 Use this option if you want to decouple model weights from the image or 
-swap in your own checkpoints via a volume mount (./models:/app/models).
+swap in your own checkpoints via a volume mount (`./models:/app/models`).
 
 1. Clone the repository and enter the project directory:
    ```bash
@@ -85,10 +85,13 @@ swap in your own checkpoints via a volume mount (./models:/app/models).
    └── effnetb0_reg.pth
    ```
 
-3. Start the service using Docker Compose (mounts ./models into /app/models inside the container):
+3. Start the service using Docker Compose (mounts `./models` into `/app/models` inside the container):
    ```bash
    docker compose up -d
    ```
+   Note: If the required weights are missing from `./models/`, the container 
+   will fail fast on startup and exit with a clear error message in `docker compose logs`.
+
 
 4. Verify that the API is ready:
    ```bash
