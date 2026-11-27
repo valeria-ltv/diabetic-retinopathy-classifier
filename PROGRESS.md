@@ -96,13 +96,13 @@
 - Refactored image validation into a shared async context manager (`validate_and_save_upload`)
 - Implemented `encode_array` utility to serialize NumPy arrays (CAMs) into base64 format
 - Added `/explain`: prediction + preprocessed image and two Grad-CAM maps in one response
-- Centralized global exception handling in `src/main.py` (`global_exception_handler`)
+- Centralized global exception handling in `src/api/main.py` (`global_exception_handler`)
 - ~~TODO (next): lock around model access (Grad-CAM hooks)~~ → done (20-11-2026)
 
 ## 20-11-2026 — API
 - `/predict` and `/explain` share an `asyncio.Lock` (Grad-CAM hooks on shared models are unsafe under concurrent requests)
 - Added API tests (`tests/test_api.py`): health, validation (400/413/500), lock invariant, lock released after errors
-- TODO (next): Docker, README
+- ~~TODO (next): Docker, README~~ → done (27-11-2026)
 
 ## 27-11-2026 — Docker & Deployment
 - Hosted model weights (`effnetb0_clf.pth`, `effnetb0_reg.pth`) on Hugging Face
