@@ -1,0 +1,12 @@
+services:
+  api:
+    image: valerialtv/dr-clf-api:latest
+    # Uncomment if building locally
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+    restart: unless-stopped

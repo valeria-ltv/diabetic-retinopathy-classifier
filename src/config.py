@@ -6,13 +6,10 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 PROCESSED_DIR = ROOT_DIR / "data" / "processed" / "aptos2019"
 SPLITS_DIR = PROCESSED_DIR / "splits"
 
-KAGGLE_DIR = Path("/kaggle/input/competitions/aptos2019-blindness-detection")
+# Raw Kaggle images directory
+RAW_DIR = ROOT_DIR / "data" / "raw" / "aptos2019"
 
-if KAGGLE_DIR.exists():
-    RAW_DIR = KAGGLE_DIR
-else:
-    RAW_DIR = ROOT_DIR / "data" / "raw" / "aptos2019"
-
+# Raw images directory used in training and testing
 IMG_DIR = RAW_DIR / "train_images"
 
 # Models directory

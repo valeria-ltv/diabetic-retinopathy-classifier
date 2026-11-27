@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
     title="Diabetic Retinopathy Classification API",
-    description="Educational prototype for diabetic retinopathy screening"
+    description="Educational prototype for diabetic retinopathy screening. "
                 "For research and demonstration purposes only. Not for clinical use or medical diagnosis.",
     version="1.0"
 )
