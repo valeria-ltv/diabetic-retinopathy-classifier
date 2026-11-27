@@ -19,11 +19,20 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Load the models into app.state
     logger.info("Loading models into memory...")
-    app.state.pipeline = InferencePipeline(
-        reg_model_path=REG_MODEL_PATH,
-        clf_model_path=CLF_MODEL_PATH,
-        device=DEVICE
-    )
+    try:
+        app.state.pipeline = InferencePipeline(
+            reg_model_path=REG_MODEL_PATH,
+            clf_model_path=CLF_MODEL_PATH,
+            device=DEVICE
+        )
+    except FileNotFoundError as exc:
+        logger.error(
+            "Missing required model weights (%s). Download 'effnetb0_clf.pth' and 'effnetb0_reg.pth' "
+            "from Hugging Face and place them in './models/' (mounted to '/app/models').",
+            exc,
+        )
+        raise
+
     # Create global asyncio.Lock to synchronize requests to the model
     app.state.model_lock = asyncio.Lock()
     logger.info("Models loaded successfully.")

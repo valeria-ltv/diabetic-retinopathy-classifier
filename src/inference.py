@@ -66,8 +66,12 @@ class InferencePipeline:
         Returns:
             nn.Module
         """
+        weights_path = Path(path)
+        if not weights_path.is_file():
+            raise FileNotFoundError(f"Model checkpoint not found: {weights_path}")
+
         net = ModelWrapper(num_outputs=num_outputs)
-        net.load_state_dict(torch.load(path, map_location=self.device, weights_only=True))
+        net.load_state_dict(torch.load(weights_path, map_location=self.device, weights_only=True))
         net.to(self.device)
         net.eval()
         return net
