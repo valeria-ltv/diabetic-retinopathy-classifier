@@ -16,7 +16,7 @@ The gain comes mainly from fewer large errors: 22 test images are off by two or 
 
 **Test confusion matrices - Ensemble**
 
-<img src="docs/figures/cm_ensemble.png" alt="Test confusion matrices: ensemble" width="600" />
+<img src="docs/figures/cm_ensemble.png" alt="Test confusion matrices: ensemble" width="800" />
 
 ## Approach
 
@@ -33,9 +33,71 @@ The gain comes mainly from fewer large errors: 22 test images are off by two or 
 - **Validation tuning and single-run variance:** Tuning thresholds and blend-weight on validation risks overfitting to it, and models were trained on a single split without multi-seed or cross-validation runs.
 - **Color-bias check:** Preprocessing addressed color differences across images, but whether color bias still affects predictions was not explicitly tested.
 
-## Next Steps
+## Next steps
 
 1. **Quantify result stability:** Repeat training with several seeds (or cross-validation) to put error bars on the results, especially for the severe classes, which have only a few dozen test images.
 2. **Refine the training recipe:** Add a learning-rate schedule and train longer; validation curves with a fixed learning rate were noisy.
 3. **Test generalization:** Evaluate on an external fundus dataset to check performance beyond APTOS-2019.
 4. **Check for residual color bias:** Report test metrics separately for "cool" and "warm" images.
+
+## How to run
+
+**Prerequisites:** Docker (with Compose v2 for option 2).
+
+The model weights are hosted separately from the source code on Hugging Face.
+
+### Option 1: Quickstart (bundled weights)
+
+Run the self-contained image (`:with-weights`) without cloning the repository or downloading weights manually:
+
+1. Start the container:
+   ```bash
+   docker run -d -p 8000:8000 --name dr-clf-api valerialtv/dr-clf-api:with-weights
+   ```
+
+2. Verify that the API is ready:
+   ```bash
+   curl http://localhost:8000/health
+   ```
+   Interactive Swagger documentation is available at http://localhost:8000/docs.
+
+
+3. Stop and remove the container:
+   ```bash
+   docker rm -f dr-clf-api
+   ```
+   
+### Option 2: Docker Compose (external weights)
+
+Use this option if you want to decouple model weights from the image or 
+swap in your own checkpoints via a volume mount (./models:/app/models).
+
+1. Clone the repository and enter the project directory:
+   ```bash
+   git clone https://github.com/valeria-ltv/diabetic-retinopathy-classifier.git
+   cd diabetic-retinopathy-classifier
+   ```
+
+2. Download `effnetb0_clf.pth` and `effnetb0_reg.pth` from the [Hugging Face repository](https://huggingface.co/valeria2648/diabetic-retinopathy-effnetb0-aptos2019) into the local `./models/` directory:
+   ```text
+   models/
+   ├── effnetb0_clf.pth
+   └── effnetb0_reg.pth
+   ```
+
+3. Start the service using Docker Compose (mounts ./models into /app/models inside the container):
+   ```bash
+   docker compose up -d
+   ```
+
+4. Verify that the API is ready:
+   ```bash
+   curl http://localhost:8000/health
+   ```
+   Interactive Swagger documentation is available at http://localhost:8000/docs.
+
+
+5. Stop and remove the container:
+   ```bash
+   docker compose down
+   ```
